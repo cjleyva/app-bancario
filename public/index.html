@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sistema Bancario - Acceso</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome optimizado -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    :root {
+      --primary-color: #3498db;
+      --secondary-color: #2980b9;
+      --accent-color: #e74c3c;
+      --light-color: #f8f9fa;
+      --dark-color: #343a40;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+    }
+    
+    .auth-container {
+      max-width: 500px;
+      width: 100%;
+      margin: 0 auto;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    .auth-card {
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+    
+    .auth-header {
+      background: var(--primary-color);
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    
+    .auth-header h2 {
+      margin: 0;
+      font-weight: 600;
+    }
+    
+    .nav-tabs {
+      border: none;
+      justify-content: center;
+    }
+    
+    .nav-tabs .nav-link {
+      border: none;
+      color: var(--dark-color);
+      font-weight: 500;
+      padding: 1rem 2rem;
+      transition: all 0.3s;
+    }
+    
+    .nav-tabs .nav-link.active {
+      color: var(--primary-color);
+      background: transparent;
+      border-bottom: 3px solid var(--primary-color);
+    }
+    
+    .nav-tabs .nav-link:hover {
+      color: var(--primary-color);
+      border-color: transparent;
+    }
+    
+    .auth-body {
+      padding: 2rem;
+      background: white;
+    }
+    
+    .form-control {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      transition: all 0.3s;
+    }
+    
+    .form-control:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+    }
+    
+    .btn-auth {
+      background: var(--primary-color);
+      border: none;
+      padding: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      transition: all 0.3s;
+    }
+    
+    .btn-auth:hover {
+      background: var(--secondary-color);
+    }
+    
+    .social-auth {
+      margin: 1.5rem 0;
+    }
+    
+    .social-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      color: white;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+    
+    .social-btn i {
+      margin-right: 0.5rem;
+    }
+    
+    .social-btn.google {
+      background: #db4437;
+    }
+    
+    .social-btn.facebook {
+      background: #4267b2;
+    }
+    
+    .social-btn:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+    
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 1.5rem 0;
+    }
+    
+    .divider::before, .divider::after {
+      content: "";
+      flex: 1;
+      border-bottom: 1px solid #ddd;
+    }
+    
+    .divider-text {
+      padding: 0 1rem;
+      color: #777;
+    }
+    
+    .message-container {
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      display: none;
+    }
+    
+    .message-container.show {
+      display: block;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .password-toggle {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #777;
+    }
+    
+    .input-group {
+      position: relative;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="auth-container">
+      <div class="auth-card">
+        <div class="auth-header">
+          <h2><i class="fas fa-piggy-bank me-2"></i>Sistema Bancario</h2>
+        </div>
+        
+        <ul class="nav nav-tabs" id="authTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab">Iniciar Sesión</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register" type="button" role="tab">Registrarse</button>
+          </li>
+        </ul>
+        
+        <div class="auth-body">
+          <div class="tab-content" id="authTabsContent">
+            <!-- Mensajes generales -->
+            <div id="message" class="message-container alert alert-danger hidden"></div>
+            
+            <!-- Pestaña de Login -->
+            <div class="tab-pane fade show active" id="login" role="tabpanel">
+              <form id="loginForm">
+                <div class="mb-3">
+                  <label for="email" class="form-label">Email</label>
+                  <input type="email" class="form-control" id="email" placeholder="tu@email.com" required>
+                </div>
+                
+                <div class="mb-3 input-group">
+                  <label for="password" class="form-label">Contraseña</label>
+                  <input type="password" class="form-control" id="password" placeholder="••••••••" required>
+                  <span class="password-toggle" onclick="togglePassword('password')">
+                    <i class="far fa-eye"></i>
+                  </span>
+                </div>
+                
+                <div class="d-flex justify-content-between mb-3">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="rememberMe">
+                    <label class="form-check-label" for="rememberMe">Recordarme</label>
+                  </div>
+                  <a href="#" id="forgotPassword">¿Olvidaste tu contraseña?</a>
+                </div>
+                
+                <button type="submit" class="btn btn-auth btn-primary w-100">Ingresar</button>
+              </form>
+              
+              <div class="divider">
+                <span class="divider-text">o continuar con</span>
+              </div>
+              
+              <div class="social-auth">
+                <a href="#" class="social-btn google">
+                  <i class="fab fa-google"></i> Google
+                </a>
+                <a href="#" class="social-btn facebook mt-2">
+                  <i class="fab fa-facebook-f"></i> Facebook
+                </a>
+              </div>
+            </div>
+            
+            <!-- Pestaña de Registro -->
+            <div class="tab-pane fade" id="register" role="tabpanel">
+              <form id="registerForm">
+                <div class="mb-3">
+                  <label for="regNombre" class="form-label">Nombre Completo</label>
+                  <input type="text" class="form-control" id="regNombre" placeholder="Juan Pérez" required>
+                </div>
+                
+                <div class="mb-3">
+                  <label for="regEmail" class="form-label">Email</label>
+                  <input type="email" class="form-control" id="regEmail" placeholder="tu@email.com" required>
+                </div>
+                
+                <div class="mb-3 input-group">
+                  <label for="regPassword" class="form-label">Contraseña</label>
+                  <input type="password" class="form-control" id="regPassword" placeholder="••••••••" minlength="6" required>
+                  <span class="password-toggle" onclick="togglePassword('regPassword')">
+                    <i class="far fa-eye"></i>
+                  </span>
+                </div>
+                
+                <div class="mb-3 input-group">
+                  <label for="regConfirmPassword" class="form-label">Confirmar Contraseña</label>
+                  <input type="password" class="form-control" id="regConfirmPassword" placeholder="••••••••" minlength="6" required>
+                  <span class="password-toggle" onclick="togglePassword('regConfirmPassword')">
+                    <i class="far fa-eye"></i>
+                  </span>
+                </div>
+                
+                <div class="form-check mb-3">
+                  <input class="form-check-input" type="checkbox" id="acceptTerms" required>
+                  <label class="form-check-label" for="acceptTerms">
+                    Acepto los <a href="#">términos y condiciones</a>
+                  </label>
+                </div>
+                
+                <button type="submit" class="btn btn-auth btn-primary w-100">Registrarse</button>
+              </form>
+              
+              <div class="divider">
+                <span class="divider-text">o registrarse con</span>
+              </div>
+              
+              <div class="social-auth">
+                <a href="#" class="social-btn google">
+                  <i class="fab fa-google"></i> Google
+                </a>
+                <a href="#" class="social-btn facebook mt-2">
+                  <i class="fab fa-facebook-f"></i> Facebook
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Función para mostrar/ocultar contraseña
+    function togglePassword(inputId) {
+      const input = document.getElementById(inputId);
+      const icon = input.nextElementSibling.querySelector('i');
+      
+      if (input.type === "password") {
+        input.type = "text";
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        input.type = "password";
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    }
+    
+    // Mostrar mensajes
+    function showMessage(type, text, elementId = 'message') {
+      const messageDiv = document.getElementById(elementId);
+      if (!messageDiv) return;
+
+      messageDiv.textContent = text;
+      messageDiv.className = `message-container alert alert-${type === 'error' ? 'danger' : 'success'} show`;
+      
+      if (type !== 'error') {
+        setTimeout(() => {
+          messageDiv.classList.remove('show');
+        }, 3000);
+      }
+    }
+  </script>
+  <script src="/js/auth.js"></script>
+</body>
+</html>

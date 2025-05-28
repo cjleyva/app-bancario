@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Usuario</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .card-balance {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #0d6efd;
+        }
+        
+        .transaction-card {
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        
+        .transaction-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .deposit-badge {
+            background-color: #198754;
+        }
+        
+        .withdrawal-badge {
+            background-color: #dc3545;
+        }
+        
+        .transfer-badge {
+            background-color: #ffc107;
+            color: #000;
+        }
+        
+        .action-btn {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        #transactionsSpinner {
+            display: none;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .btn-spinner {
+            display: none;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Barra de navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-piggy-bank me-2"></i>Mi Cuenta Bancaria
+            </a>
+            <div class="d-flex align-items-center">
+                <span id="userInfo" class="text-white me-3">
+                    <i class="fas fa-user-circle me-2"></i>Cargando...
+                </span>
+                <button id="logoutBtn" class="btn btn-outline-light">
+                    <i class="fas fa-sign-out-alt me-1"></i> Cerrar Sesión
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Alert de error -->
+        <div id="errorAlert" class="alert alert-danger d-none">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span id="errorMessage"></span>
+        </div>
+        
+        <div class="row">
+            <!-- Columna izquierda - Saldo y acciones -->
+            <div class="col-md-4 mb-4">
+                <div class="card card-balance">
+                    <div class="card-body">
+                        <h5 class="card-title text-muted">Saldo Disponible</h5>
+                        <h2 class="card-text" id="currentBalance">Cargando...</h2>
+                        <p class="text-success" id="lastUpdate">
+                            <i class="fas fa-sync-alt me-1"></i>Cargando...
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="card mt-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Acciones Rápidas</h5>
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-primary action-btn" data-bs-toggle="modal" data-bs-target="#depositModal">
+                            <i class="fas fa-money-bill-wave me-2"></i>Realizar Depósito
+                        </button>
+                        
+                        <button class="btn btn-danger action-btn" data-bs-toggle="modal" data-bs-target="#withdrawModal">
+                            <i class="fas fa-hand-holding-usd me-2"></i>Realizar Retiro
+                        </button>
+                        
+                        <button class="btn btn-warning action-btn" data-bs-toggle="modal" data-bs-target="#transferModal">
+                            <i class="fas fa-exchange-alt me-2"></i>Transferencia
+                        </button>
+                        
+                        <button id="fullHistoryBtn" class="btn btn-outline-secondary action-btn">
+                            <i class="fas fa-history me-2"></i>Historial Completo
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Columna derecha - Movimientos recientes -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Últimos Movimientos</h5>
+                        <button id="refreshTransactionsBtn" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-sync-alt me-1"></i>Actualizar
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div id="transactionsSpinner" class="d-flex justify-content-center py-4">
+                            <i class="fas fa-spinner fa-spin fa-2x"></i>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Descripción</th>
+                                        <th>Tipo</th>
+                                        <th class="text-end">Monto</th>
+                                        <th class="text-end">Saldo</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactionsTable">
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4">
+                                            <i class="fas fa-spinner fa-spin me-2"></i>Cargando transacciones...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination justify-content-center mb-0">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1">Anterior</a>
+                                </li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">Siguiente</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Depósito -->
+    <div class="modal fade" id="depositModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Realizar Depósito</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="depositForm">
+                        <div class="mb-3">
+                            <label for="depositAmount" class="form-label">Monto a depositar</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" step="0.01" class="form-control" id="depositAmount" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="depositDescription" class="form-label">Descripción</label>
+                            <input type="text" class="form-control" id="depositDescription" placeholder="Ej. Depósito de efectivo">
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>El depósito se reflejará en tu cuenta inmediatamente.
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" form="depositForm" class="btn btn-primary" id="confirmDepositBtn">
+                        <span id="depositBtnText">Confirmar Depósito</span>
+                        <span id="depositSpinner" class="btn-spinner">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Retiro -->
+    <div class="modal fade" id="withdrawModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Realizar Retiro</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="withdrawForm">
+                        <div class="mb-3">
+                            <label for="withdrawAmount" class="form-label">Monto a retirar</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" step="0.01" class="form-control" id="withdrawAmount" required>
+                            </div>
+                            <small class="text-muted">Saldo disponible: <span id="availableBalance">Cargando...</span></small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="withdrawDescription" class="form-label">Descripción</label>
+                            <input type="text" class="form-control" id="withdrawDescription" placeholder="Ej. Retiro para gastos personales">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" form="withdrawForm" class="btn btn-danger" id="confirmWithdrawBtn">
+                        <span id="withdrawBtnText">Confirmar Retiro</span>
+                        <span id="withdrawSpinner" class="btn-spinner">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Transferencia -->
+    <div class="modal fade" id="transferModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Realizar Transferencia</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="transferForm">
+                        <div class="mb-3">
+                            <label for="transferAccount" class="form-label">Cuenta destino</label>
+                            <input type="text" class="form-control" id="transferAccount" placeholder="Número de cuenta o email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="transferAmount" class="form-label">Monto a transferir</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" step="0.01" class="form-control" id="transferAmount" required>
+                            </div>
+                            <small class="text-muted">Saldo disponible: <span id="availableBalanceTransfer">Cargando...</span></small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="transferDescription" class="form-label">Descripción</label>
+                            <input type="text" class="form-control" id="transferDescription" placeholder="Ej. Pago de servicios">
+                        </div>
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Las transferencias son irreversibles.
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" form="transferForm" class="btn btn-warning" id="confirmTransferBtn">
+                        <span id="transferBtnText">Confirmar Transferencia</span>
+                        <span id="transferSpinner" class="btn-spinner">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de éxito -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="fas fa-check-circle me-2"></i>Operación exitosa</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="successMessage"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Aceptar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script  src="/js/auth.js"></script>
+    <script  src="/js/user.js"></script>
+
+</body>
+</html>
