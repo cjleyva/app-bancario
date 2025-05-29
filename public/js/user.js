@@ -268,7 +268,7 @@ async function handleWithdraw(e) {
 function handleLogout() {
   currentUser = null;
   currentAccount = null;
-  window.location.href = '/'; // Cambia esto según tu estructura
+  window.location.href = 'login.html'; // Cambia esto según tu estructura
 }
 
 /**
