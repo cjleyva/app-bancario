@@ -1,5 +1,4 @@
 const Usuario = require('../modelos/Usuario');
-const bcrypt = require('bcrypt');
 
 class ServicioRegistro {
   async registrarUsuario(datosUsuario) {
@@ -10,15 +9,11 @@ class ServicioRegistro {
         throw new Error('El email ya está registrado');
       }
 
-      //hashear contraseña antes de guardar
-      const saltRounds = 10;
-      const contrasenaHash = await bcrypt.hash(datosUsuario.contrasena, saltRounds);
-
-      // Crear nuevo usuario
+      // Crear nuevo usuario (sin encriptar contraseña)
       const nuevoUsuario = new Usuario({
         nombre: datosUsuario.nombre,
         email: datosUsuario.email,
-        contrasena: contrasenaHash,
+        contrasena: datosUsuario.contrasena, // Almacenar en texto plano (solo desarrollo)
         rol_id: datosUsuario.rol_id || '66532a1e3fc6ae1234567891' // ID de rol por defecto
       });
 

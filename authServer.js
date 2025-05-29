@@ -11,18 +11,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Servir archivos estáticos
-app.use(express.static(path.join(__dirname, 'public')));
-
-
 // Conexión a DB (puedes tener una DB específica para auth)
 connectDB();
-
-// Ruta para login.html
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
 
 // API Routes - Solo autenticación
 app.use('/api/auth', authRoutes);
