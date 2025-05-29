@@ -111,6 +111,47 @@ async function retirar(monto) {
 }
 
 /**
+ * Realiza una transferencia
+ * @param {string} cuentaDestino 
+ * @param {number} monto 
+ * @returns {Promise<Object>} Resultado de la transacción
+ */
+async function transferir(cuentaDestino, monto) {
+  if (!currentAccount) return;
+  
+  try {
+    const response = await fetch('http://localhost:3003/api/transactions/transacciones/transferir', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        numeroCuentaOrigen: currentAccount.numero_cuenta,
+        numeroCuentaDestino: cuentaDestino,
+        monto: parseFloat(monto)
+      }),
+    });
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || 'Error al transferir');
+    }
+    
+    // Actualizar el saldo localmente
+    currentAccount.saldo = data.nuevoSaldoOrigen;
+    localStorage.setItem('account', JSON.stringify(currentAccount));
+    
+    updateBalanceUI();
+    showSuccess(`Transferencia exitosa. Nuevo saldo: $${data.nuevoSaldoOrigen}`);
+    await loadTransactions();
+    
+    return data;
+  } catch (error) {
+    showError(error.message);
+    throw error;
+  }
+}
+
+/**
  * Obtiene las transacciones de la cuenta actual
  * @returns {Promise<Array>} Lista de transacciones
  */
@@ -172,21 +213,50 @@ async function loadTransactions() {
       return;
     }
 
-    tableBody.innerHTML = transacciones.map(trans => `
-      <tr>
-        <td>${new Date(trans.creado_en).toLocaleDateString()}</td>
-        <td>${trans.tipo === 'ingreso' ? 'Depósito' : 'Retiro'}</td>
-        <td>
-          <span class="badge ${trans.tipo === 'ingreso' ? 'deposit-badge' : 'withdrawal-badge'}">
-            ${trans.tipo === 'ingreso' ? 'Ingreso' : 'Retiro'}
-          </span>
-        </td>
-        <td class="text-end ${trans.tipo === 'ingreso' ? 'text-success' : 'text-danger'}">
-          ${trans.tipo === 'ingreso' ? '+' : '-'}$${trans.monto}
-        </td>
-        <td class="text-end">$${trans.saldo_resultante}</td>
-      </tr>
-    `).join('');
+    tableBody.innerHTML = transacciones.map(trans => {
+      let tipoLabel = '';
+      let tipoBadge = '';
+      let signo = '';
+
+      switch (trans.tipo) {
+        case 'ingreso':
+          tipoLabel = 'Depósito';
+          tipoBadge = 'deposit-badge';
+          signo = '+';
+          break;
+        case 'retiro':
+          tipoLabel = 'Retiro';
+          tipoBadge = 'withdrawal-badge';
+          signo = '-';
+          break;
+        case 'transferencia':
+          tipoLabel = 'Transferencia';
+          tipoBadge = 'transfer-badge'; // crea una clase en CSS si quieres estilos únicos
+          signo = '-'; // o '+', depende de cómo manejes esto
+          break;
+        case 'deposito':
+          tipoLabel = 'Depósito Bancario';
+          tipoBadge = 'deposit-badge'; // puedes usar la misma clase
+          signo = '+';
+          break;
+        default:
+          tipoLabel = trans.tipo;
+          tipoBadge = 'unknown-badge';
+          signo = '';
+      }
+
+      return `
+        <tr>
+          <td>${new Date(trans.creado_en).toLocaleDateString()}</td>
+          <td>${tipoLabel}</td>
+          <td><span class="badge ${tipoBadge}">${tipoLabel}</span></td>
+          <td class="text-end ${signo === '+' ? 'text-success' : 'text-danger'}">
+            ${signo}$${trans.monto}
+          </td>
+          <td class="text-end">$${trans.saldo_resultante}</td>
+        </tr>
+      `;
+    }).join('');
   } catch (error) {
     showError(error.message);
   } finally {
@@ -269,6 +339,40 @@ async function handleWithdraw(e) {
 }
 
 /**
+ * Maneja el envío del formulario de transferencia
+ */
+async function handleTransfer(e) {
+  e.preventDefault();
+  const cuentaDestino = document.getElementById('transferAccount').value.trim();
+  const monto = document.getElementById('transferAmount').value;
+  const btn = document.getElementById('confirmTransferBtn');
+  const spinner = document.getElementById('transferSpinner');
+  
+  btn.disabled = true;
+  spinner.style.display = 'inline-block';
+  
+  try {
+    // Validación básica
+    if (!cuentaDestino || !monto) {
+      throw new Error('Debes completar todos los campos');
+    }
+    
+    if (cuentaDestino === currentAccount.numero_cuenta) {
+      throw new Error('No puedes transferir a tu propia cuenta');
+    }
+    
+    await transferir(cuentaDestino, monto);
+    bootstrap.Modal.getInstance(document.getElementById('transferModal')).hide();
+    document.getElementById('transferForm').reset();
+  } catch (error) {
+    showError(error.message);
+  } finally {
+    btn.disabled = false;
+    spinner.style.display = 'none';
+  }
+}
+
+/**
  * Maneja el cierre de sesión
  */
 function handleLogout() {
@@ -308,6 +412,7 @@ async function initApp() {
   document.getElementById('withdrawForm').addEventListener('submit', handleWithdraw);
   document.getElementById('logoutBtn').addEventListener('click', handleLogout);
   document.getElementById('refreshTransactionsBtn').addEventListener('click', handleRefreshTransactions);
+  document.getElementById('transferForm').addEventListener('submit', handleTransfer);
 
   // Mostrar información del usuario
   updateUserInfo();

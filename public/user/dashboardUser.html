@@ -254,23 +254,30 @@
                 <div class="modal-body">
                     <form id="transferForm">
                         <div class="mb-3">
-                            <label for="transferAccount" class="form-label">Cuenta destino</label>
-                            <input type="text" class="form-control" id="transferAccount" placeholder="Número de cuenta o email" required>
+                            <label for="transferAccount" class="form-label">Número de cuenta destino</label>
+                            <input type="text" class="form-control" id="transferAccount" 
+                                placeholder="Ingrese número de cuenta" required>
+                            <small class="text-muted">Ejemplo: 1234567890</small>
                         </div>
                         <div class="mb-3">
                             <label for="transferAmount" class="form-label">Monto a transferir</label>
                             <div class="input-group">
                                 <span class="input-group-text">$</span>
-                                <input type="number" step="0.01" class="form-control" id="transferAmount" required>
+                                <input type="number" step="0.01" min="0.01" 
+                                    class="form-control" id="transferAmount" required>
                             </div>
-                            <small class="text-muted">Saldo disponible: <span id="availableBalanceTransfer">Cargando...</span></small>
+                            <small class="text-muted">Saldo disponible: 
+                                <span id="availableBalanceTransfer">$${currentAccount?.saldo || '0.00'}</span>
+                            </small>
                         </div>
                         <div class="mb-3">
-                            <label for="transferDescription" class="form-label">Descripción</label>
-                            <input type="text" class="form-control" id="transferDescription" placeholder="Ej. Pago de servicios">
+                            <label for="transferDescription" class="form-label">Descripción (Opcional)</label>
+                            <input type="text" class="form-control" id="transferDescription" 
+                                placeholder="Ej. Pago de servicios">
                         </div>
                         <div class="alert alert-warning">
-                            <i class="fas fa-exclamation-triangle me-2"></i>Las transferencias son irreversibles.
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Las transferencias son irreversibles. Verifique los datos antes de confirmar.
                         </div>
                     </form>
                 </div>

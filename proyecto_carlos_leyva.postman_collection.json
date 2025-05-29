@@ -1,0 +1,148 @@
+{
+	"info": {
+		"_postman_id": "81426eff-1cc4-4235-a3d1-17e3639b00b4",
+		"name": "proyecto_carlos_leyva",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "32869141",
+		"_collection_link": "https://rpa-excellentiam.postman.co/workspace/Rpa-Excellentiam-Workspace~ce83087c-0082-4f62-92c8-4a48f7c2f63d/collection/32869141-81426eff-1cc4-4235-a3d1-17e3639b00b4?action=share&source=collection_link&creator=32869141"
+	},
+	"item": [
+		{
+			"name": "3001/api/auth/login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"carlos.leyva@example.com\",\r\n    \"contrasena\": \"carlos123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/api/auth/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3001/api/auth/registro",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"nombre\" : \"Carlos leyva\",\r\n    \"email\" : \"carlos.leyva@example.com\",\r\n    \"contrasena\": \"carlos123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/api/auth/registro",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"auth",
+						"registro"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3002/api/accounts/cuentas/id?usuarioId=",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3002/api/accounts/cuentas/6837ed65002658bca2b9d756?usuarioId=6837ed65002658bca2b9d754",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"api",
+						"accounts",
+						"cuentas",
+						"6837ed65002658bca2b9d756"
+					],
+					"query": [
+						{
+							"key": "usuarioId",
+							"value": "6837ed65002658bca2b9d754"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3003/api/transactions/transacciones/transferir",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"numeroCuentaOrigen\":\"2305522907601241\",\r\n    \"numeroCuentaDestino\":\"2221262047490068\",\r\n    \"monto\": 100\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3003/api/transactions/transacciones/transferir",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3003",
+					"path": [
+						"api",
+						"transactions",
+						"transacciones",
+						"transferir"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

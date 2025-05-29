@@ -1,0 +1,2 @@
+ejecutar subirMongo.bat
+abrir mongo shell y pegar "rs.initiate()" (se hace una sola vez, de resto se sigue solo ejecutando el .bat)
