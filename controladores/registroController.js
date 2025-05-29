@@ -19,7 +19,7 @@ class RegistroController {
       const usuario = await this.servicioRegistro.registrarUsuario({
         nombre,
         email,
-        contrasena, // Contraseña en texto plano (solo para desarrollo)
+        contrasena,
         rol_id
       });
 

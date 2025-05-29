@@ -122,6 +122,42 @@ async function handleLogin(e) {
     }
 }
 
+//manejo de registro
+async function handleRegister(e) {
+    e.preventDefault();
+    
+    const name = document.getElementById('regNombre')?.value;
+    const email = document.getElementById('regEmail')?.value.trim();
+    const password = document.getElementById('regPassword')?.value;
+    const confirmPassword = document.getElementById('regConfirmPassword')?.value;
+    if (!name || !email || !password || !confirmPassword) {
+        return showMessage('error', 'Por favor complete todos los campos');
+    }
+    if (password !== confirmPassword){
+        return showMessage('error', 'Las contraseñas no coinciden');
+    }
+    
+    try {
+        const response = await fetch('http://localhost:3001/api/auth/registro', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({nombre: name, email, contrasena: password })
+        });
+        const data = await response.json();
+
+        if (!response.ok) {
+            return showMessage('error', data.message || 'Error al registrar usuario');
+        }
+
+        showMessage('success', 'Registro exitoso');
+        setTimeout(() => window.location.href = '/index.html', 1000);
+    } catch (err) {
+        console.error('Register error:', err);
+        showMessage('error', 'Error de conexión con el servidor');
+    }
+}
+
+
 // Inicialización
 document.addEventListener('DOMContentLoaded', () => {
     // Solo verificar si estamos en una página de la aplicación
@@ -144,5 +180,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const user = JSON.parse(localStorage.getItem('user'));
             if (user) userInfo.textContent = `Bienvenido, ${user.nombre}`;
         }
+    }
+    if (document.getElementById('registerForm')) {
+        document.getElementById('registerForm').addEventListener('submit', handleRegister);
     }
 });
