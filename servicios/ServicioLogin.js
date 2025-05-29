@@ -1,4 +1,5 @@
 const Usuario = require('../modelos/Usuario');
+const Cuenta = require('../modelos/Cuenta');
 const bcrypt = require('bcrypt');
 
 class ServicioLogin {
@@ -24,11 +25,24 @@ class ServicioLogin {
         throw new Error('Credenciales inválidas');
       }
 
+      // Buscar la cuenta del usuario
+      const cuenta = await Cuenta.findOne({ usuario_id: usuario._id });
+      if (!cuenta) {
+        throw new Error('Cuenta no encontrada');
+      }
+
       // Eliminar contraseña del objeto de respuesta
       const usuarioRespuesta = usuario.toObject();
       delete usuarioRespuesta.contrasena;
 
-      return usuarioRespuesta;
+      return {
+        usuario: usuarioRespuesta,
+        cuenta: {
+          _id: cuenta._id,
+          numero_cuenta: cuenta.numero_cuenta,
+          saldo: cuenta.formatearSaldo()
+        }
+      };
     } catch (error) {
       console.error('Error en login:', {
         error: error.message,

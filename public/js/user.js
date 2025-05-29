@@ -1,37 +1,40 @@
 // ===========================================
 // 1. VARIABLES GLOBALES Y ESTADO DE LA APLICACIÓN
 // ===========================================
-let currentUser = null;
-let currentAccount = null;
+let currentUser = JSON.parse(localStorage.getItem('user')) || null;
+let currentAccount = JSON.parse(localStorage.getItem('account')) || null;
 
 // ===========================================
 // 2. FUNCIONES PARA INTERACTUAR CON LA API
 // ===========================================
 /**
- * Obtiene las cuentas del usuario actual
- * @returns {Promise<Array>} Lista de cuentas
+ * Actualiza la información del usuario en la UI
  */
-async function getCuentas() {
-  if (!currentUser) return;
-
-  try {
-    const response = await fetch(`http://localhost:3000/api/cuentas?usuarioId=${currentUser.id}`);
-    const data = await response.json();
-
-    if (data.success) {
-      // Guardamos la primera cuenta como "cuenta actual" (simplificación)
-      if (data.data.length > 0) {
-        currentAccount = data.data[0];
-        updateBalanceUI();
-      }
-      return data.data;
-    } else {
-      throw new Error(data.message || 'Error al obtener cuentas');
-    }
-  } catch (error) {
-    showError(error.message);
-    throw error;
+function updateUserInfo() {
+  if (!currentUser || !currentAccount) {
+    showError('No se encontró información del usuario o cuenta');
+    return;
   }
+
+  // Mostrar información del usuario en la barra de navegación
+  const userInfoElement = document.getElementById('userInfo');
+  if (userInfoElement) {
+    userInfoElement.innerHTML = `
+      <i class="fas fa-user-circle me-2"></i>
+      ${currentUser.nombre}
+    `;
+  }
+
+  // Mostrar información de la cuenta
+  document.getElementById('currentBalance').textContent = `$${currentAccount.saldo}`;
+  document.getElementById('accountNumber').textContent = currentAccount.numero_cuenta;
+  document.getElementById('availableBalance').textContent = `$${currentAccount.saldo}`;
+  document.getElementById('availableBalanceTransfer').textContent = `$${currentAccount.saldo}`;
+  
+  // Actualizar la fecha
+  document.getElementById('lastUpdate').innerHTML = `
+    <i class="fas fa-sync-alt me-1"></i>Actualizado: ${new Date().toLocaleTimeString()}
+  `;
 }
 
 /**
@@ -43,7 +46,7 @@ async function depositar(monto) {
   if (!currentAccount) return;
 
   try {
-    const response = await fetch('http://localhost:3000/api/transacciones/depositar', {
+    const response = await fetch('http://localhost:3003/api/transactions/transacciones/depositar', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
@@ -55,8 +58,11 @@ async function depositar(monto) {
     const data = await response.json();
 
     if (data.success) {
+      // Actualizar el saldo localmente
       currentAccount.saldo = data.nuevoSaldo;
-      updateBalanceUI();
+      localStorage.setItem('account', JSON.stringify(currentAccount));
+      
+      updateUserInfo();
       showSuccess(`Depósito exitoso. Nuevo saldo: $${data.nuevoSaldo}`);
       await loadTransactions();
       return data;
@@ -78,7 +84,7 @@ async function retirar(monto) {
   if (!currentAccount) return;
 
   try {
-    const response = await fetch('http://localhost:3000/api/transacciones/retirar', {
+    const response = await fetch('http://localhost:3003/api/transactions/transacciones/retirar', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
@@ -112,7 +118,7 @@ async function getTransacciones() {
   if (!currentAccount) return;
 
   try {
-    const response = await fetch(`http://localhost:3000/api/transacciones/${currentAccount._id}`);
+    const response = await fetch(`http://localhost:3003/api/transactions/transacciones/${currentAccount._id}`);
     const data = await response.json();
 
     if (data.success) {
@@ -148,10 +154,8 @@ function updateBalanceUI() {
  * Carga las transacciones en la tabla
  */
 async function loadTransactions() {
-  const spinner = document.getElementById('transactionsSpinner');
   const tableBody = document.getElementById('transactionsTable');
   
-  spinner.style.display = 'flex';
   tableBody.innerHTML = '';
 
   try {
@@ -186,7 +190,9 @@ async function loadTransactions() {
   } catch (error) {
     showError(error.message);
   } finally {
-    spinner.style.display = 'none';
+    const btn = document.getElementById('refreshTransactionsBtn');
+    btn.innerHTML = '<i class="fas fa-sync-alt me-1"></i>Actualizar';
+    btn.disabled = false;
   }
 }
 
@@ -266,9 +272,9 @@ async function handleWithdraw(e) {
  * Maneja el cierre de sesión
  */
 function handleLogout() {
-  currentUser = null;
-  currentAccount = null;
-  window.location.href = '/'; // Cambia esto según tu estructura
+  localStorage.removeItem('user');
+  localStorage.removeItem('account');
+  window.location.href = '/index.html';
 }
 
 /**
@@ -291,20 +297,23 @@ async function handleRefreshTransactions() {
  * Inicializa la aplicación cuando el DOM está listo
  */
 async function initApp() {
+  // Verificar si hay usuario logueado
+  if (!currentUser) {
+    window.location.href = '/index.html';
+    return;
+  }
+
   // Configurar manejadores de eventos
   document.getElementById('depositForm').addEventListener('submit', handleDeposit);
   document.getElementById('withdrawForm').addEventListener('submit', handleWithdraw);
   document.getElementById('logoutBtn').addEventListener('click', handleLogout);
   document.getElementById('refreshTransactionsBtn').addEventListener('click', handleRefreshTransactions);
 
-  // Simulamos un login automático (en un caso real sería después de un formulario)
-  try {
-    await login('carlos@example.com'); // Cambia esto por el email real
-    await getCuentas();
-    await loadTransactions();
-  } catch (error) {
-    console.error('Error inicializando la app:', error);
-  }
+  // Mostrar información del usuario
+  updateUserInfo();
+  
+  // Cargar transacciones
+  await loadTransactions();
 }
 
 // Iniciar la aplicación cuando el DOM esté listo

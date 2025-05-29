@@ -14,7 +14,7 @@ const cuentaSchema = new mongoose.Schema({
   saldo: {
     type: Number,
     required: true,
-    default: 0
+    default: 0.00
   },
   creado_en: {
     type: Date,

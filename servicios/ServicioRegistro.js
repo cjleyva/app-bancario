@@ -1,5 +1,7 @@
 const Usuario = require('../modelos/Usuario');
+const Cuenta = require('../modelos/Cuenta');
 const bcrypt = require('bcrypt');
+const { generarAccountNumber } = require('../utils/requestUtils');
 
 class ServicioRegistro {
   async registrarUsuario(datosUsuario) {
@@ -29,6 +31,12 @@ class ServicioRegistro {
       const usuarioRespuesta = usuarioGuardado.toObject();
       delete usuarioRespuesta.contrasena;
 
+      // Generar número de cuenta único
+      const numeroCuenta = generarAccountNumber();
+
+      // Crear cuenta asociada al usuario
+      await this.crearCuenta(usuarioRespuesta._id, numeroCuenta, 0.00);
+
       return usuarioRespuesta;
     } catch (error) {
       console.error('Error en registro:', error);
@@ -39,6 +47,24 @@ class ServicioRegistro {
       }
       
       throw new Error('Error al crear el usuario');
+    }
+  }
+
+  // metodo para crear una cuenta asociada al usuario
+  async crearCuenta(usuarioId, numCuenta, saldoInicial = 0.00) {
+    try {
+      // Crear una nueva cuenta
+      const nuevaCuenta = new Cuenta({
+        usuario_id: usuarioId,
+        numero_cuenta: numCuenta,
+        saldo: saldoInicial,
+      });
+      // Guardar la cuenta en la base de datos
+      const cuentaGuardada = await nuevaCuenta.save();
+      return cuentaGuardada;
+    } catch (error) {
+      console.error('Error en crear cuenta:', error);
+      throw new Error('Error al crear la cuenta');
     }
   }
 }

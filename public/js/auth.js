@@ -109,6 +109,7 @@ async function handleLogin(e) {
         }
 
         localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('account', JSON.stringify(data.account));
         showMessage('success', 'Inicio de sesión exitoso');
         
         // Redirección directa sin verificación
