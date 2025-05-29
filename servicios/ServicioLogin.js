@@ -19,8 +19,8 @@ class ServicioLogin {
         throw new Error('Credenciales inválidas');
       }
 
-      const contrasenaValida = await this.verifyPassword(usuario, contrasenaLimpia);
-      if (!contrasenaValida) {
+      // Comparación directa (sin bcrypt)
+      if (contrasenaLimpia !== usuario.contrasena.trim()) {
         console.log('Contraseña incorrecta para:', emailNormalizado);
         throw new Error('Credenciales inválidas');
       }
@@ -51,11 +51,6 @@ class ServicioLogin {
       });
       throw error;
     }
-  }
-
-  // verificar contraseña
-  async verifyPassword(usuario, contraseñaLimpia) {
-    return bcrypt.compare(contraseñaLimpia, usuario.contrasena.trim());
   }
 }
 
