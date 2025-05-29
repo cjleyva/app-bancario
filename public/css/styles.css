@@ -172,3 +172,31 @@
     .input-group {
       position: relative;
     }
+
+    .deposit-badge {
+      background-color: #28a745; /* verde */
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    .withdrawal-badge {
+      background-color: #dc3545; /* rojo */
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    .transfer-badge {
+      background-color: #ffc107; /* amarillo */
+      color: black;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    .unknown-badge {
+      background-color: #6c757d; /* gris */
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }

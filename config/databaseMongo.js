@@ -55,7 +55,7 @@ const initializeData = async () => {
       // 4. Insertar cuenta para el usuario normal
       const cuentaUsuario = await mongoose.connection.db.collection('cuentas').insertOne({
         usuario_id: usuario.insertedId,
-        numero_cuenta: "1234567890",
+        numero_cuenta: "1234567890123456",
         saldo: 1000.00
       });
       console.log('Cuenta para usuario creada');

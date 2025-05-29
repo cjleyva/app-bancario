@@ -52,6 +52,41 @@ const transaccionesController = {
     }
   },
 
+  transferir: async (req, res) => {
+    try {
+      const { numeroCuentaOrigen, numeroCuentaDestino, monto } = req.body;
+      
+      if (!numeroCuentaOrigen || !numeroCuentaDestino || !monto) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Se requieren numeroCuentaOrigen, numeroCuentaDestino y monto' 
+        });
+      }
+      
+      if (numeroCuentaOrigen === numeroCuentaDestino) {
+        return res.status(400).json({
+          success: false,
+          message: 'No puedes transferir a la misma cuenta'
+        });
+      }
+      
+      const resultado = await ServicioTransacciones.realizarTransferencia(
+        numeroCuentaOrigen, 
+        numeroCuentaDestino, 
+        parseFloat(monto)
+      );
+      
+      res.json(resultado);
+    } catch (error) {
+      const status = error.message.includes('Saldo insuficiente') ? 400 : 
+                    error.message.includes('Cuenta') ? 404 : 500;
+      res.status(status).json({ 
+        success: false, 
+        message: error.message 
+      });
+    }
+  },
+
   obtenerTransacciones: async (req, res) => {
     try {
       const transacciones = await ServicioTransacciones.obtenerPorCuenta(

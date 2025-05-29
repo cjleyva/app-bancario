@@ -80,12 +80,14 @@
         <div class="row">
             <!-- Columna izquierda - Saldo y acciones -->
             <div class="col-md-4 mb-4">
+                <!-- En la sección de saldo -->
                 <div class="card card-balance">
                     <div class="card-body">
                         <h5 class="card-title text-muted">Saldo Disponible</h5>
                         <h2 class="card-text" id="currentBalance">Cargando...</h2>
+                        <p class="text-muted small">Número de cuenta: <span id="accountNumber" class="fw-bold"></span></p>
                         <p class="text-success" id="lastUpdate">
-                            <i class="fas fa-sync-alt me-1"></i>Cargando...
+                            <i class="fas fa-sync-alt me-1"></i>Actualizado: ${new Date().toLocaleTimeString()}
                         </p>
                     </div>
                 </div>
@@ -107,9 +109,6 @@
                             <i class="fas fa-exchange-alt me-2"></i>Transferencia
                         </button>
                         
-                        <button id="fullHistoryBtn" class="btn btn-outline-secondary action-btn">
-                            <i class="fas fa-history me-2"></i>Historial Completo
-                        </button>
                     </div>
                 </div>
             </div>
@@ -124,9 +123,9 @@
                         </button>
                     </div>
                     <div class="card-body p-0">
-                        <div id="transactionsSpinner" class="d-flex justify-content-center py-4">
+                        <!-- <div id="transactionsSpinner" class="d-flex justify-content-center py-4">
                             <i class="fas fa-spinner fa-spin fa-2x"></i>
-                        </div>
+                        </div> -->
                         <div class="table-responsive">
                             <table class="table table-hover mb-0">
                                 <thead class="table-light">
@@ -255,23 +254,30 @@
                 <div class="modal-body">
                     <form id="transferForm">
                         <div class="mb-3">
-                            <label for="transferAccount" class="form-label">Cuenta destino</label>
-                            <input type="text" class="form-control" id="transferAccount" placeholder="Número de cuenta o email" required>
+                            <label for="transferAccount" class="form-label">Número de cuenta destino</label>
+                            <input type="text" class="form-control" id="transferAccount" 
+                                placeholder="Ingrese número de cuenta" required>
+                            <small class="text-muted">Ejemplo: 1234567890</small>
                         </div>
                         <div class="mb-3">
                             <label for="transferAmount" class="form-label">Monto a transferir</label>
                             <div class="input-group">
                                 <span class="input-group-text">$</span>
-                                <input type="number" step="0.01" class="form-control" id="transferAmount" required>
+                                <input type="number" step="0.01" min="0.01" 
+                                    class="form-control" id="transferAmount" required>
                             </div>
-                            <small class="text-muted">Saldo disponible: <span id="availableBalanceTransfer">Cargando...</span></small>
+                            <small class="text-muted">Saldo disponible: 
+                                <span id="availableBalanceTransfer">$${currentAccount?.saldo || '0.00'}</span>
+                            </small>
                         </div>
                         <div class="mb-3">
-                            <label for="transferDescription" class="form-label">Descripción</label>
-                            <input type="text" class="form-control" id="transferDescription" placeholder="Ej. Pago de servicios">
+                            <label for="transferDescription" class="form-label">Descripción (Opcional)</label>
+                            <input type="text" class="form-control" id="transferDescription" 
+                                placeholder="Ej. Pago de servicios">
                         </div>
                         <div class="alert alert-warning">
-                            <i class="fas fa-exclamation-triangle me-2"></i>Las transferencias son irreversibles.
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Las transferencias son irreversibles. Verifique los datos antes de confirmar.
                         </div>
                     </form>
                 </div>
